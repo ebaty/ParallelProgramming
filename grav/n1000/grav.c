@@ -8,67 +8,43 @@
 #define STEP 10
 #define DT 1.0f
 #define G 1.0f
-#define DEFAULT_SIZE 10000
+#define DEFAULT_SIZE 1000
 
 #define REP(i, n) for(i=0;i<n;++i)
-#define kPathHeader "n10000/"
-#define kPathHooter ".double"
+#define PATH ""
 
 typedef struct matter {
 	double m, x, y, z, vx, vy, vz;
 }matter;
 
-char* getPath(char *s) {
-	char header[] = kPathHeader;
-	char hooter[] = kPathHooter;
-
-	return strcat(strcat(header, s), hooter);
-}
-
-void initMatter(matter *m) {
+int initMatter(matter *p) {
 	double *buf;
 	buf = (double *)malloc(sizeof(double) * DEFAULT_SIZE);
 
 	int i;
 
-	read_data(getPath("m"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].m = buf[i];
+	read_data(strcat(PATH, "m.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].m = buf[i];
 
-	read_data(getPath("x"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].x = buf[i];
+	read_data(strcat(PATH, "x.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].x = buf[i];
 
-	read_data(getPath("y"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].y = buf[i];
+	read_data(strcat(PATH, "y.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].y = buf[i];
 
-	read_data(getPath("z"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].z = buf[i];
+	read_data(strcat(PATH, "z.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].z = buf[i];
 
-	read_data(getPath("vx"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].vx = buf[i];
+	read_data(strcat(PATH, "vx.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].vx = buf[i];
 
-	read_data(getPath("vy"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].vy = buf[i];
+	read_data(strcat(PATH, "vy.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].vy = buf[i];
 
-	read_data(getPath("vz"), buf, DEFAULT_SIZE);
-	REP(i, DEFAULT_SIZE) m[i].vz = buf[i];
+	read_data(strcat(PATH, "vz.double"), buf, DEFAULT_SIZE);
+	for(i = 0; i < DEFAULT_SIZE; ++i) p[i].vz = buf[i];
 
 	free(buf);
-}
-
-void printMatter(matter *m) {
-	double *buf;
-	buf = (double *)malloc(sizeof(double) * DEFAULT_SIZE);
-
-	int i;
-
-	REP(i, DEFAULT_SIZE) buf[i] = m[i].x;
-	write_data(buf, "ansx.double", DEFAULT_SIZE);
-
-	REP(i, DEFAULT_SIZE) buf[i] = m[i].y;
-	write_data(buf, "ansy.double", DEFAULT_SIZE);
-
-	REP(i, DEFAULT_SIZE) buf[i] = m[i].z;
-	write_data(buf, "ansz.double", DEFAULT_SIZE);
 }
 
 int main(void) {
@@ -116,8 +92,5 @@ int main(void) {
 			m[n][i].z += m[n][i].vz * DT;
 		}
 	}
-
-	printMatter(m[(STEP-1)&1]);
-
 	return 0;
 }
