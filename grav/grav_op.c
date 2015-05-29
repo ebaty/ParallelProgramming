@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	printMatter(m[(STEP-1)&1]);
+	printMatter(m[STEP&1]);
 
 	return 0;
 }
