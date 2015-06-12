@@ -104,11 +104,18 @@ int main(int argc, char* argv[]) {
 
 	int i, j, k;
 	REP(k, STEP) {
-		printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
+		printf("%s, %s, %d, STEP: %d\n", __FUNCTION__, __FILE__, __LINE__, k);
+
+		int p = k&1;
+		int n = (k+1)&1;
+
+		// reduction value
+		double vx, vy, vz;
+
+		// private value
+		double xx, yy, zz, r, rr, gm;
+#pragma omp parallel for private(xx, yy, zz, r, rr, gm, vx, vy, vz, i, j)
 		REP(i, fileSize) {
-			/* printf("%s, %s, %d, i: %d\n", __FUNCTION__, __FILE__, __LINE__, i); */
-			int p = k&1;
-			int n = (k+1)&1;
 			m[n][i].m  = m[p][i].m;
 			m[n][i].x  = m[p][i].x;
 			m[n][i].y  = m[p][i].y;
@@ -117,12 +124,7 @@ int main(int argc, char* argv[]) {
 			m[n][i].vy = m[p][i].vy;
 			m[n][i].vz = m[p][i].vz;
 
-			double vx, vy, vz;
 			vx = vy = vz = 0.0f;
-
-			// private value
-			double xx, yy, zz, r, rr, gm;
-			#pragma omp parallel for private(xx, yy, zz, r, rr, gm) reduction(+: vx, vy, vz)
 			REP(j, fileSize) {
 				if ( i != j ) {
 					xx = m[p][i].x - m[p][j].x; xx *= xx;
@@ -148,6 +150,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 	printMatter(m[STEP&1]);
 
 	return 0;
