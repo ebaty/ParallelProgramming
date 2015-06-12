@@ -104,7 +104,9 @@ int main(int argc, char* argv[]) {
 
 	int i, j, k;
 	REP(k, STEP) {
+		printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 		REP(i, fileSize) {
+			/* printf("%s, %s, %d, i: %d\n", __FUNCTION__, __FILE__, __LINE__, i); */
 			int p = k&1;
 			int n = (k+1)&1;
 			m[n][i].m  = m[p][i].m;
@@ -116,11 +118,11 @@ int main(int argc, char* argv[]) {
 			m[n][i].vz = m[p][i].vz;
 
 			double vx, vy, vz;
-			vx = vy = vz = 0;
+			vx = vy = vz = 0.0f;
 
 			// private value
 			double xx, yy, zz, r, rr, gm;
-			#pragma omp parallel for reduction(+:vx, vy, vz) private(xx, yy, zz, r, rr, gm)
+			#pragma omp parallel for private(xx, yy, zz, r, rr, gm) reduction(+: vx, vy, vz)
 			REP(j, fileSize) {
 				if ( i != j ) {
 					xx = m[p][i].x - m[p][j].x; xx *= xx;
@@ -136,7 +138,6 @@ int main(int argc, char* argv[]) {
 					vz += gm * ((m[p][j].z - m[p][i].z) / r);
 				}
 			}
-
 			m[n][i].vx += vx * DT;
 			m[n][i].vy += vy * DT;
 			m[n][i].vz += vz * DT;
