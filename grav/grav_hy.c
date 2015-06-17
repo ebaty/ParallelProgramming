@@ -9,7 +9,7 @@
 #include <omp.h>
 #include <mpi.h>
 
-#define STEP 10
+#define STEP 1
 #define DT 1.0f
 #define G 1.0f
 #define REP(i,n) for(i=0;i<n;++i)
@@ -42,14 +42,6 @@ void createDataType() {
 
 	MPI_Type_create_struct(7, blockLength, offsets, types, &mpi_matter_type);
 	MPI_Type_commit(&mpi_matter_type);
-}
-
-void matterAllgather(matter *send, matter *receive) {
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	MPI_Allgather(send, arraySize, mpi_matter_type, receive, arraySize, mpi_matter_type, MPI_COMM_WORLD);
-
-	MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void printThreads() {
@@ -117,9 +109,16 @@ void printMatter(matter *m) {
 
 	REP(i, fileSize) buf[i] = m[i].z;
 	write_data(buf, "ansz.double", fileSize);
+
+	free(buf);
 }
 
 int main(int argc, char *argv[]) {
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &nodeSize);
+	MPI_Comm_rank(MPI_COMM_WORLD, &nodeRank);
+	createDataType();
+
 	if ( argc != 4 ) {
 		printf("this program argument format: ./exe [FileHeader] [FileHooter] [ElementSize]\n");
 		return 1;
@@ -129,27 +128,30 @@ int main(int argc, char *argv[]) {
 		fileSize = atoi(argv[3]);
 	}
 
-	MPI_Init(&argc, &argv);
-	MPI_Comm_size(MPI_COMM_WORLD, &nodeSize);
-	MPI_Comm_rank(MPI_COMM_WORLD, &nodeRank);
-	createDataType();
-
-	int arraySize = (fileSize / nodeSize);
-	if ( fileSize % nodeSize ) {
-		arraySize += 1;
-	}
+	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
+	int arraySize = (fileSize / nodeSize) + ( fileSize % nodeSize > 0 ? 1 : 0 );
 
 	matter m[arraySize * nodeSize];
 	initMatter(m);
 
 	matter cm[arraySize];
 
+	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 	int i, j, k;
 	REP(k, STEP) {
-		/* printf("STEP: %d, nodeRank: %d\n", k, nodeRank); */
+		printf("STEP: %d, nodeRank: %d\n", k, nodeRank);
+		printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 
-		for(i = nodeRank * arraySize; i < ((nodeRank + 1) * arraySize) && i < fileSize; ++i) {
-			/* printf("STEP: %d, nodeRank: %d, i: %d\n", k, nodeRank, i); */
+		double vx, vy, vz;
+		double xx, yy, zz, r, rr, gm;
+
+		int start = nodeRank * arraySize;
+		int end = start + arraySize;
+		end = end < fileSize ? end : fileSize;
+		printf("nodeRank: %d, start: %d, end %d\n", nodeRank, start, end);
+/* #pragma omp parallel for private(xx, yy, zz, r, rr, gm, vx, vy, vz, i, j) */
+		for(i = start; i < end; ++i) {
+			printf("STEP: %d, nodeRank: %d, i: %d\n", k, nodeRank, i);
 			cm[i].m  = m[i].m;
 			cm[i].x  = m[i].x;
 			cm[i].y  = m[i].y;
@@ -158,12 +160,7 @@ int main(int argc, char *argv[]) {
 			cm[i].vy = m[i].vy;
 			cm[i].vz = m[i].vz;
 
-			double vx, vy, vz;
-			vx = vy = vz = 0;
-
-			// private value
-			double xx, yy, zz, r, rr, gm;
-			/* #pragma omp parallel for private(xx, yy, zz, r, rr, gm) */
+			vx = vy = vz = 0.0f;
 			REP(j, fileSize) {
 				if ( i != j ) {
 					xx = m[i].x - m[j].x; xx *= xx;
@@ -188,11 +185,26 @@ int main(int argc, char *argv[]) {
 			cm[i].y += cm[i].vy * DT;
 			cm[i].z += cm[i].vz * DT;
 		}
+		printf("Message Passing start: %s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
+		MPI_Barrier(MPI_COMM_WORLD);
 
-		matterAllgather(cm, m);
+		MPI_Allgather(cm, arraySize, mpi_matter_type, m, arraySize, mpi_matter_type, MPI_COMM_WORLD);
+		/* REP(i, fileSize) { */
+		/* 	m[i].m = cm[i].m; */
+		/* 	m[i].x = cm[i].x; */
+		/* 	m[i].y = cm[i].y; */
+		/* 	m[i].z = cm[i].z; */
+		/* 	m[i].vx = cm[i].vx; */
+		/* 	m[i].vy = cm[i].vy; */
+		/* 	m[i].vz = cm[i].vz; */
+		/* } */
+
+		MPI_Barrier(MPI_COMM_WORLD);
+		printf("Message Passing end:   %s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 	}
 
-	printMatter(m);
+	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
+	if ( nodeRank == nodeSize - 1 ) printMatter(m);
 
 	MPI_Type_free(&mpi_matter_type);
 	MPI_Finalize();

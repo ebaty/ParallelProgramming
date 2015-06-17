@@ -111,6 +111,7 @@ int main(int argc, char* argv[]) {
 
 		// reduction value
 		double vx, vy, vz;
+		vx = vy = vz = 0.0f;
 
 		// private value
 		double xx, yy, zz, r, rr, gm;
@@ -124,7 +125,6 @@ int main(int argc, char* argv[]) {
 			m[n][i].vy = m[p][i].vy;
 			m[n][i].vz = m[p][i].vz;
 
-			vx = vy = vz = 0.0f;
 			REP(j, fileSize) {
 				if ( i != j ) {
 					xx = m[p][i].x - m[p][j].x; xx *= xx;
