@@ -1,0 +1,108 @@
+nodeRank = 1, arraySize * nodeSize = 1000
+nodeRank = 1, fileSize = 1000
+nodeRank = 0, arraySize * nodeSize = 1000
+nodeRank = 0, fileSize = 1000
+slow_grav_hy.c, 107, main
+STEP: 0, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+slow_grav_hy.c, 107, main
+STEP: 0, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 1, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 1, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 2, nodeRank: 0
+slow_grav_hy.c, 111, main
+Message Passing start: slow_grav_hy.c, 161, main
+nodeRank: 0, start: 0, end 500
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 2, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 3, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 3, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 4, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 4, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 5, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 5, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 6, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 6, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 7, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 7, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 8, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 8, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 9, nodeRank: 0
+slow_grav_hy.c, 111, main
+nodeRank: 0, start: 0, end 500
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+STEP: 9, nodeRank: 1
+slow_grav_hy.c, 111, main
+nodeRank: 1, start: 500, end 1000
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+slow_grav_hy.c, 173, main
+Message Passing start: slow_grav_hy.c, 161, main
+Message Passing end:   slow_grav_hy.c, 170, main
+slow_grav_hy.c, 173, main
