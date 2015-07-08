@@ -109,13 +109,9 @@ int main(int argc, char* argv[]) {
 		int p = k&1;
 		int n = (k+1)&1;
 
-		// reduction value
-		double vx, vy, vz;
-		vx = vy = vz = 0.0f;
-
 		// private value
 		double xx, yy, zz, r, rr, gm;
-#pragma omp parallel for private(xx, yy, zz, r, rr, gm, vx, vy, vz, i, j)
+		#pragma omp parallel for private(xx, yy, zz, r, rr, gm, i, j)
 		REP(i, fileSize) {
 			m[n][i].m  = m[p][i].m;
 			m[n][i].x  = m[p][i].x;
@@ -133,17 +129,14 @@ int main(int argc, char* argv[]) {
 
 					r = sqrt(xx + yy + zz);
 					rr = r * r;
+					r = 1.0f / r;
 
 					gm = G * (m[p][i].m / rr);
-					vx += gm * ((m[p][j].x - m[p][i].x) / r);
-					vy += gm * ((m[p][j].y - m[p][i].y) / r);
-					vz += gm * ((m[p][j].z - m[p][i].z) / r);
+					m[n][i].vx += gm * ((m[p][j].x - m[p][i].x) * r);
+					m[n][i].vy += gm * ((m[p][j].y - m[p][i].y) * r);
+					m[n][i].vz += gm * ((m[p][j].z - m[p][i].z) * r);
 				}
 			}
-			m[n][i].vx += vx * DT;
-			m[n][i].vy += vy * DT;
-			m[n][i].vz += vz * DT;
-
 			m[n][i].x += m[n][i].vx * DT;
 			m[n][i].y += m[n][i].vy * DT;
 			m[n][i].z += m[n][i].vz * DT;

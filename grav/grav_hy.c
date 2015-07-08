@@ -16,7 +16,6 @@
 int nodeSize;
 int nodeRank;
 int fileSize;
-int arraySize;
 char* fileHeader;
 char* fileHooter;
 
@@ -52,7 +51,7 @@ char* getPath(char *s) {
 	return fileName;
 }
 
-void initMatter(int offset, matter *m) {
+void initMatter(int offset, matter *m, int arraySize) {
 	double *buf;
 	buf = (double *)malloc(sizeof(double) * fileSize);
 
@@ -82,7 +81,7 @@ void initMatter(int offset, matter *m) {
 	free(buf);
 }
 
-void printMatter(matter *m, int nodeRank) {
+void printMatter(matter *m, int nodeRank, int arraySize) {
 	double *buf;
 	buf = (double *)malloc(sizeof(double) * arraySize);
 
@@ -123,59 +122,62 @@ int main(int argc, char *argv[]) {
 	int arraySize = (fileSize / nodeSize) + ( fileSize % nodeSize > 0 ? 1 : 0 );
 
 	matter m[arraySize];
-	initMatter(nodeRank * arraySize, m);
+	initMatter(nodeRank * arraySize, m, arraySize);
 
-	matter buf[arraySize];
-	matter bufbuf[arraySize];
+	matter buf[2][arraySize];
 
 	int i, j, buf_j, k;
 	REP(k, STEP) {
 		printf("STEP: %d, nodeRank: %d\n", k, nodeRank);
 
-		REP(i, arraySize) buf[i] = m[i];
+		REP(i, arraySize) buf[0][i] = m[i];
 		REP(i, nodeSize) {
-			#pragma omp parallel sections
+			int bufIndex = i & 1;
+			#pragma omp parallel sections 
 			{
 				#pragma omp section
 				{
-					MPI_Status status;
-					int sendRank = (nodeRank - (i + 1) + nodeSize) % nodeSize;
-					int recvRank = (nodeRank + (i + 1) ) % nodeSize;
-					MPI_Sendrecv(     m, arraySize, mpi_matter_type, sendRank, 0,
-											 bufbuf, arraySize, mpi_matter_type, recvRank, 0, MPI_COMM_WORLD, &status);
+						printf("%d: nodeRank = %d, thread_num = %d\n", __LINE__, nodeRank, omp_get_thread_num());
+						if ( i < nodeSize-1 ) {
+							MPI_Status status;
+							int sendRank = (nodeRank - (i + 1) + nodeSize) % nodeSize;
+							int recvRank = (nodeRank + (i + 1) ) % nodeSize;
+							MPI_Sendrecv(									 m, arraySize, mpi_matter_type, sendRank, 0,
+													 buf[(bufIndex+1)&1], arraySize, mpi_matter_type, recvRank, 0, MPI_COMM_WORLD, &status);
+						}
 				}
 				#pragma omp section
 				{
 					double xx, yy, zz, r, rr, gm;
-					#pragma omp parallel for private(xx, yy, zz, r, rr, gm, j, buf_j)
+					#pragma omp parallel for private(xx, yy, zz, r, rr, gm, j, buf_j) num_threads(15)
 					REP(j, arraySize) REP(buf_j, arraySize) {
 						if ( (i != 0) || (j != buf_j) ) {
-							xx = m[j].x - buf[buf_j].x; xx *= xx;
-							yy = m[j].y - buf[buf_j].y; yy *= yy;
-							zz = m[j].z - buf[buf_j].z; zz *= zz;
+							xx = m[j].x - buf[bufIndex][buf_j].x; xx *= xx;
+							yy = m[j].y - buf[bufIndex][buf_j].y; yy *= yy;
+							zz = m[j].z - buf[bufIndex][buf_j].z; zz *= zz;
 
 							r = sqrt(xx + yy + zz);
 							rr = r * r;
 
+							r = 1.0 / r;
 							gm = G * (m[j].m / rr);
-							m[j].vx += gm * ((buf[buf_j].x - m[j].x) / r);							
-							m[j].vy += gm * ((buf[buf_j].y - m[j].y) / r);							
-							m[j].vz += gm * ((buf[buf_j].z - m[j].z) / r);							
+							m[j].vx += gm * ((buf[bufIndex][buf_j].x - m[j].x) * r);							
+							m[j].vy += gm * ((buf[bufIndex][buf_j].y - m[j].y) * r);							
+							m[j].vz += gm * ((buf[bufIndex][buf_j].z - m[j].z) * r);							
 						}
 					}
 				}
 			}
-			REP(j, arraySize) {
-				m[j].x += m[j].vx * DT;
-				m[j].y += m[j].vy * DT;
-				m[j].z += m[j].vz * DT;
-				buf[j] = bufbuf[j];
-			}
+		}
+		REP(i, arraySize) {
+			m[i].x += m[i].vx * DT;
+			m[i].y += m[i].vy * DT;
+			m[i].z += m[i].vz * DT;
 		}
 	}
 
+	printMatter(m, nodeRank, arraySize);
 	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
-	printMatter(m, nodeRank);
 
 	MPI_Type_free(&mpi_matter_type);
 	MPI_Finalize();
