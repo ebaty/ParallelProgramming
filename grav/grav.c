@@ -91,9 +91,10 @@ int main(int argc, char *argv[]) {
 
 	int i, j, k;
 	REP(k, STEP) {
+		int p = k&1;
+		int n = (k+1)&1;
+
 		REP(i, fileSize) {
-			int p = k&1;
-			int n = (k+1)&1;
 			m[n][i].m  = m[p][i].m;
 			m[n][i].x  = m[p][i].x;
 			m[n][i].y  = m[p][i].y;
@@ -101,21 +102,26 @@ int main(int argc, char *argv[]) {
 			m[n][i].vx = m[p][i].vx;
 			m[n][i].vy = m[p][i].vy;
 			m[n][i].vz = m[p][i].vz;
+		}
 
-			REP(j, fileSize) {
-				if ( i == j ) continue;
-
+		REP(i, fileSize) {
+			for(j = i + 1; j < fileSize; ++j) {
 				double xx = m[p][i].x - m[p][j].x; xx *= xx;
 				double yy = m[p][i].y - m[p][j].y; yy *= yy;
 				double zz = m[p][i].z - m[p][j].z; zz *= zz;
 
-				double r = sqrt(xx + yy + zz);
+				double r = 1.0 / sqrt(xx + yy + zz);
 				double rr = r * r;
 
-				double gm = G * (m[p][i].m / rr);
-				m[n][i].vx += gm * ((m[p][j].x - m[p][i].x) / r) * DT;
-				m[n][i].vy += gm * ((m[p][j].y - m[p][i].y) / r) * DT;
-				m[n][i].vz += gm * ((m[p][j].z - m[p][i].z) / r) * DT;
+				double gm = G * (m[p][i].m * rr);
+				m[n][i].vx += gm * ((m[p][j].x - m[p][i].x) * r) * DT;
+				m[n][i].vy += gm * ((m[p][j].y - m[p][i].y) * r) * DT;
+				m[n][i].vz += gm * ((m[p][j].z - m[p][i].z) * r) * DT;
+
+				gm = G * (m[p][j].m * rr);
+				m[n][j].vx += gm * ((m[p][i].x - m[p][j].x) * r) * DT;
+				m[n][j].vy += gm * ((m[p][i].y - m[p][j].y) * r) * DT;
+				m[n][j].vz += gm * ((m[p][i].z - m[p][j].z) * r) * DT;
 			}
 
 			m[n][i].x += m[n][i].vx * DT;
