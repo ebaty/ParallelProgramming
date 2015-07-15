@@ -109,9 +109,6 @@ int main(int argc, char* argv[]) {
 		int p = k&1;
 		int n = (k+1)&1;
 
-		// private value
-		double xx, yy, zz, r, rr, gm;
-		#pragma omp parallel for private(xx, yy, zz, r, rr, gm, i, j)
 		REP(i, fileSize) {
 			m[n][i].m  = m[p][i].m;
 			m[n][i].x  = m[p][i].x;
@@ -120,23 +117,31 @@ int main(int argc, char* argv[]) {
 			m[n][i].vx = m[p][i].vx;
 			m[n][i].vy = m[p][i].vy;
 			m[n][i].vz = m[p][i].vz;
+		}
 
-			REP(j, fileSize) {
-				if ( i != j ) {
-					xx = m[p][i].x - m[p][j].x; xx *= xx;
-					yy = m[p][i].y - m[p][j].y; yy *= yy;
-					zz = m[p][i].z - m[p][j].z; zz *= zz;
+		// private value
+		double xx, yy, zz, r, rr, gm;
+		#pragma omp parallel for private(xx, yy, zz, r, rr, gm, i, j)
+		REP(i, fileSize) {
+			for(j = i + 1; j < fileSize; ++j) {
+				xx = m[p][i].x - m[p][j].x; xx *= xx;
+				yy = m[p][i].y - m[p][j].y; yy *= yy;
+				zz = m[p][i].z - m[p][j].z; zz *= zz;
 
-					r = sqrt(xx + yy + zz);
-					rr = r * r;
-					r = 1.0f / r;
+				r = 1.0 / sqrt(xx + yy + zz);
+				rr = r * r;
 
-					gm = G * (m[p][i].m / rr);
-					m[n][i].vx += gm * ((m[p][j].x - m[p][i].x) * r);
-					m[n][i].vy += gm * ((m[p][j].y - m[p][i].y) * r);
-					m[n][i].vz += gm * ((m[p][j].z - m[p][i].z) * r);
-				}
+				gm = G * (m[p][i].m * rr);
+				m[n][i].vx += gm * ((m[p][j].x - m[p][i].x) * r);
+				m[n][i].vy += gm * ((m[p][j].y - m[p][i].y) * r);
+				m[n][i].vz += gm * ((m[p][j].z - m[p][i].z) * r);
+
+				gm = G * (m[p][j].m * rr);
+				m[n][j].vx += gm * ((m[p][i].x - m[p][j].x) * r);
+				m[n][j].vy += gm * ((m[p][i].y - m[p][j].y) * r);
+				m[n][j].vz += gm * ((m[p][i].z - m[p][j].z) * r);
 			}
+
 			m[n][i].x += m[n][i].vx * DT;
 			m[n][i].y += m[n][i].vy * DT;
 			m[n][i].z += m[n][i].vz * DT;
