@@ -137,7 +137,6 @@ int main(int argc, char *argv[]) {
 			{
 				#pragma omp section
 				{
-						printf("%d: nodeRank = %d, thread_num = %d\n", __LINE__, nodeRank, omp_get_thread_num());
 						if ( i < nodeSize-1 ) {
 							MPI_Status status;
 							int sendRank = (nodeRank - (i + 1) + nodeSize) % nodeSize;
@@ -156,11 +155,10 @@ int main(int argc, char *argv[]) {
 							yy = m[j].y - buf[bufIndex][buf_j].y; yy *= yy;
 							zz = m[j].z - buf[bufIndex][buf_j].z; zz *= zz;
 
-							r = sqrt(xx + yy + zz);
+							r = 1.0 / sqrt(xx + yy + zz);
 							rr = r * r;
 
-							r = 1.0 / r;
-							gm = G * (m[j].m / rr);
+							gm = G * (m[j].m * rr);
 							m[j].vx += gm * ((buf[bufIndex][buf_j].x - m[j].x) * r);							
 							m[j].vy += gm * ((buf[bufIndex][buf_j].y - m[j].y) * r);							
 							m[j].vz += gm * ((buf[bufIndex][buf_j].z - m[j].z) * r);							
