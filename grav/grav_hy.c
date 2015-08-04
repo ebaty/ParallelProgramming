@@ -126,6 +126,8 @@ int main(int argc, char *argv[]) {
 
 	matter buf[2][arraySize];
 
+	double time = MPI_Wtime();
+
 	int i, j, buf_j, k;
 	REP(k, STEP) {
 		printf("STEP: %d, nodeRank: %d\n", k, nodeRank);
@@ -174,11 +176,15 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	time = MPI_Wtime() - time;
+	
 	printMatter(m, nodeRank, arraySize);
 	printf("%s, %s, %d\n", __FUNCTION__, __FILE__, __LINE__);
 
 	MPI_Type_free(&mpi_matter_type);
 	MPI_Finalize();
+
+	if ( nodeRank == 0 ) printf("time: %lf\n", time);
 
 	return 0;
 }
