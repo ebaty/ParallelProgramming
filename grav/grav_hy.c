@@ -135,10 +135,10 @@ int main(int argc, char *argv[]) {
 		REP(i, arraySize) buf[0][i] = m[i];
 		REP(i, nodeSize) {
 			int bufIndex = i & 1;
-			#pragma omp parallel sections 
-			{
-				#pragma omp section
-				{
+			/* #pragma omp parallel sections  */
+			/* { */
+			/* 	#pragma omp section */
+			/* 	{ */
 						if ( i < nodeSize-1 ) {
 							MPI_Status status;
 							int sendRank = (nodeRank - (i + 1) + nodeSize) % nodeSize;
@@ -146,9 +146,9 @@ int main(int argc, char *argv[]) {
 							MPI_Sendrecv(									 m, arraySize, mpi_matter_type, sendRank, 0,
 													 buf[(bufIndex+1)&1], arraySize, mpi_matter_type, recvRank, 0, MPI_COMM_WORLD, &status);
 						}
-				}
-				#pragma omp section
-				{
+				/* } */
+				/* #pragma omp section */
+				/* { */
 					double xx, yy, zz, r, rr, gm;
 					#pragma omp parallel for private(xx, yy, zz, r, rr, gm, j, buf_j) num_threads(15)
 					REP(j, arraySize) REP(buf_j, arraySize) {
@@ -166,8 +166,8 @@ int main(int argc, char *argv[]) {
 							m[j].vz += gm * ((buf[bufIndex][buf_j].z - m[j].z) * r);							
 						}
 					}
-				}
-			}
+			/* 	} */
+			/* } */
 		}
 		REP(i, arraySize) {
 			m[i].x += m[i].vx * DT;
