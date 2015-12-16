@@ -5,7 +5,7 @@
 #define kMPIDataType MPI_LONG_LONG 
 #define kDataType long long
 
-#define kFileName "points_to_points.csv"
+#define kFileName "p_to_p.csv"
 typedef struct mpi_result {
 	int rank;
 	long long size;
@@ -61,11 +61,18 @@ mpi_result sendData(int size) {
 int main(int argc, char **argv) {
 	MPI_Init(&argc, &argv);
 
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
 	// ファイルポインタの準備
-	FILE *fp = fopen(kFileName, "w");
-	if ( fp == NULL ) {
-		printf("can't open %s.\n", kFileName);
-		return 1;
+	FILE *fp;
+
+	if ( rank == 0 ) {
+		fp = fopen(kFileName, "w");
+		if ( fp == NULL ) {
+			printf("can't open %s.\n", kFileName);
+			return 1;
+		}
 	}
 
 	long long i;
@@ -74,7 +81,7 @@ int main(int argc, char **argv) {
 		double ave_time = 0;
 		if ( i == 2147483648 ) i = 2147483647;
 
-		printf("%s, %d\n", __PRETTY_FUNCTION__, i);
+		printf("%s, %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
 		int j;
 		for(j = 0; j < 10; ++j) {
 			mpi_result result = sendData(i);
@@ -83,10 +90,12 @@ int main(int argc, char **argv) {
 		}
 		ave_time /= 10.0f;
 
-		fprintf(fp, "%lld\t%lf\n", size, ave_time);
+		if ( rank == 0 ) {
+			fprintf(fp, "%lld\t%lf\n", size, ave_time);
+		}
 	}
 
-	fclose(fp);
+	if ( rank == 0 ) fclose(fp);
 
 	MPI_Finalize();
 

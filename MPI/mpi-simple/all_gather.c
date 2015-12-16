@@ -54,14 +54,20 @@ mpi_result sendData(long long size, int node_size) {
 int main(int argc, char **argv) {
 	MPI_Init(&argc, &argv);
 
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
 	int node_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &node_size);
 
 	// ファイルポインタの準備
-	FILE *fp = fopen(kFileName, "w");
-	if ( fp == NULL ) {
-		printf("can't open %s.\n", kFileName);
-		return 1;
+	FILE *fp;
+	fp = fopen(kFileName, "w");
+	if ( rank == 0 ) {
+		if ( fp == NULL ) {
+			printf("can't open %s.\n", kFileName);
+			return 1;
+		}
 	}
 
 	long long i;
@@ -78,10 +84,12 @@ int main(int argc, char **argv) {
 		}
 		ave_time /= 10.0f;
 
-		fprintf(fp, "%lld\t%lf\n", size, ave_time);
+		if ( rank == 0 ) {
+			fprintf(fp, "%lld\t%lf\n", size, ave_time);
+		}
 	}
 
-	fclose(fp);
+	if ( rank == 0 ) fclose(fp);
 
 	MPI_Finalize();
 

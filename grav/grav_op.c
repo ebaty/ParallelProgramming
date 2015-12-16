@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
 
 		// private value
 		double xx, yy, zz, r, rr, gm;
-		#pragma omp parallel for private(xx, yy, zz, r, rr, gm, i, j)
+		/* #pragma omp parallel for private(xx, yy, zz, r, rr, gm, i, j) */
 		REP(i, fileSize) {
 			REP(j, fileSize) {
 				if ( i != j ) {

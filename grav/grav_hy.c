@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 		fileSize = atoi(argv[3]);
 	}
 
-	omp_set_nested(1);
+	omp_set_num_threads(2);
 	int arraySize = (fileSize / nodeSize) + ( fileSize % nodeSize > 0 ? 1 : 0 );
 
 	matter m[arraySize];
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 				/* #pragma omp section */
 				/* { */
 					double xx, yy, zz, r, rr, gm;
-					#pragma omp parallel for private(xx, yy, zz, r, rr, gm, j, buf_j) num_threads(15)
+					#pragma omp parallel for private(xx, yy, zz, r, rr, gm, j, buf_j)
 					REP(j, arraySize) REP(buf_j, arraySize) {
 						if ( (i != 0) || (j != buf_j) ) {
 							xx = m[j].x - buf[bufIndex][buf_j].x; xx *= xx;

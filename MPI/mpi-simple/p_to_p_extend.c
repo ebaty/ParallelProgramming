@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	}
 
 	long long i;
-	for(i = 1LL << 28 ; i >= 1; i >>= 1) {
+	for(i = 1LL << 25 ; i >= 1; i >>= 1) {
 		long long size;
 		double ave_time = 0;
 		if ( i == 2147483648 ) i = 2147483647;
